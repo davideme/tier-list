@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LocalStorageProvider } from '../../src/storage/LocalStorageProvider';
 import { TierList, TierListSummary } from '../../src/types';
 
@@ -11,18 +12,18 @@ describe('LocalStorageProvider', () => {
     
     Object.defineProperty(window, 'localStorage', {
       value: {
-        getItem: jest.fn((key: string) => mockLocalStorage[key] || null),
-        setItem: jest.fn((key: string, value: string) => {
+        getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
           mockLocalStorage[key] = value;
         }),
-        removeItem: jest.fn((key: string) => {
+        removeItem: vi.fn((key: string) => {
           delete mockLocalStorage[key];
         }),
-        clear: jest.fn(() => {
+        clear: vi.fn(() => {
           mockLocalStorage = {};
         }),
         length: 0,
-        key: jest.fn(),
+        key: vi.fn(),
       },
       writable: true,
     });
@@ -81,7 +82,7 @@ describe('LocalStorageProvider', () => {
       };
 
       // Mock localStorage.setItem to throw QuotaExceededError
-      (localStorage.setItem as jest.Mock).mockImplementation(() => {
+      vi.mocked(localStorage.setItem).mockImplementation(() => {
         const error = new Error('QuotaExceededError');
         error.name = 'QuotaExceededError';
         throw error;

@@ -1,33 +1,34 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TierListService } from '../../src/services/TierListService';
 import { StorageProvider } from '../../src/types';
 import { generateId, createDefaultTiers, deepClone } from '../../src/utils';
 
 // Mock the utils module
-jest.mock('../../src/utils', () => ({
-  generateId: jest.fn(),
-  createDefaultTiers: jest.fn(),
-  deepClone: jest.fn(),
+vi.mock('../../src/utils', () => ({
+  generateId: vi.fn(),
+  createDefaultTiers: vi.fn(),
+  deepClone: vi.fn(),
 }));
 
-const mockGenerateId = generateId as jest.MockedFunction<typeof generateId>;
-const mockCreateDefaultTiers = createDefaultTiers as jest.MockedFunction<typeof createDefaultTiers>;
-const mockDeepClone = deepClone as jest.MockedFunction<typeof deepClone>;
+const mockGenerateId = vi.mocked(generateId);
+const mockCreateDefaultTiers = vi.mocked(createDefaultTiers);
+const mockDeepClone = vi.mocked(deepClone);
 
 describe('TierListService', () => {
   let service: TierListService;
-  let mockStorageProvider: jest.Mocked<StorageProvider>;
+  let mockStorageProvider: StorageProvider;
 
   beforeEach(() => {
     mockStorageProvider = {
-      save: jest.fn(),
-      load: jest.fn(),
-      list: jest.fn(),
-      delete: jest.fn(),
-      saveMultiple: jest.fn(),
-      loadMultiple: jest.fn(),
-      export: jest.fn(),
-      import: jest.fn(),
-      getStorageInfo: jest.fn(),
+      save: vi.fn(),
+      load: vi.fn(),
+      list: vi.fn(),
+      delete: vi.fn(),
+      saveMultiple: vi.fn(),
+      loadMultiple: vi.fn(),
+      export: vi.fn(),
+      import: vi.fn(),
+      getStorageInfo: vi.fn(),
     };
 
     service = new TierListService(mockStorageProvider);
@@ -104,7 +105,7 @@ describe('TierListService', () => {
         },
       };
 
-      mockStorageProvider.save.mockResolvedValue(undefined);
+      vi.mocked(mockStorageProvider.save).mockResolvedValue(undefined);
 
       const result = await service.createTierList('Test Tier List', 'Test Description');
 
@@ -113,7 +114,7 @@ describe('TierListService', () => {
     });
 
     it('should create tier list without description', async () => {
-      mockStorageProvider.save.mockResolvedValue(undefined);
+      vi.mocked(mockStorageProvider.save).mockResolvedValue(undefined);
 
       const result = await service.createTierList('Test Tier List');
 
@@ -124,15 +125,9 @@ describe('TierListService', () => {
     });
 
     it('should throw error if storage save fails', async () => {
-      mockStorageProvider.save.mockRejectedValue(new Error('Storage error'));
+      vi.mocked(mockStorageProvider.save).mockRejectedValue(new Error('Storage error'));
 
-      try {
-        await service.createTierList('Test');
-        fail('Expected error to be thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toBe('Storage error');
-      }
+      await expect(service.createTierList('Test')).rejects.toThrow('Storage error');
     });
   });
 
@@ -155,7 +150,7 @@ describe('TierListService', () => {
         },
       };
 
-      mockStorageProvider.load.mockResolvedValue(mockTierList);
+      vi.mocked(mockStorageProvider.load).mockResolvedValue(mockTierList);
 
       const result = await service.loadTierList('test-id');
 
@@ -164,7 +159,7 @@ describe('TierListService', () => {
     });
 
     it('should return null if tier list not found', async () => {
-      mockStorageProvider.load.mockResolvedValue(null);
+      vi.mocked(mockStorageProvider.load).mockResolvedValue(null);
 
       const result = await service.loadTierList('non-existent');
       expect(result).toBeNull();
@@ -190,7 +185,7 @@ describe('TierListService', () => {
         },
       ];
 
-      mockStorageProvider.list.mockResolvedValue(mockSummaries);
+      vi.mocked(mockStorageProvider.list).mockResolvedValue(mockSummaries);
 
       const result = await service.listTierLists();
 
@@ -224,8 +219,8 @@ describe('TierListService', () => {
       };
 
       const updatedTierList = { ...existingTierList, ...updates };
-      mockStorageProvider.load.mockResolvedValue(existingTierList);
-      mockStorageProvider.save.mockResolvedValue(undefined);
+      vi.mocked(mockStorageProvider.load).mockResolvedValue(existingTierList);
+      vi.mocked(mockStorageProvider.save).mockResolvedValue(undefined);
 
       await service.updateTierList(updatedTierList);
 
@@ -235,7 +230,7 @@ describe('TierListService', () => {
 
   describe('deleteTierList', () => {
     it('should delete tier list', async () => {
-      mockStorageProvider.delete.mockResolvedValue(undefined);
+      vi.mocked(mockStorageProvider.delete).mockResolvedValue(undefined);
 
       await service.deleteTierList('test-id');
 
@@ -265,10 +260,10 @@ describe('TierListService', () => {
 
       const clonedTierList = { ...originalTierList };
       
-      mockStorageProvider.load.mockResolvedValue(originalTierList);
+      vi.mocked(mockStorageProvider.load).mockResolvedValue(originalTierList);
       mockDeepClone.mockReturnValue(clonedTierList);
       mockGenerateId.mockReturnValue('new-id-123');
-      mockStorageProvider.save.mockResolvedValue(undefined);
+      vi.mocked(mockStorageProvider.save).mockResolvedValue(undefined);
 
       const result = await service.duplicateTierList('original-id');
 
