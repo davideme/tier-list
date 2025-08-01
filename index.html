@@ -379,37 +379,422 @@
             display: none;
         }
         
+        /* Mobile hamburger menu */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        /* Floating Action Button */
+        .fab-container {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .fab-main {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .fab-main:hover {
+            transform: scale(1.1);
+        }
+        
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .fab-menu.open {
+            display: flex;
+        }
+        
+        .fab-item {
+            background: white;
+            color: #333;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .fab-item:hover {
+            background: #f8f9fa;
+            transform: translateX(-5px);
+        }
+        
+        /* Tier tabs for mobile navigation */
+        .tier-tabs {
+            display: none;
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .tier-tab {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 8px;
+            border: 2px solid #dee2e6;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            text-align: center;
+        }
+        
+        .tier-tab.active {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+        
+        /* Item selection styles */
+        .tier-item.selected {
+            border: 3px solid #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.3);
+        }
+        
+        /* Mobile modal for tier selection */
+        .mobile-tier-modal {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            z-index: 1002;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-tier-modal.open {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .tier-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 50px;
+        }
+        
+        .tier-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-button.tier-s { background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); }
+        .tier-button.tier-a { background: linear-gradient(135deg, #ff8800 0%, #e65100 100%); }
+        .tier-button.tier-b { background: linear-gradient(135deg, #ffdd00 0%, #f57f17 100%); }
+        .tier-button.tier-c { background: linear-gradient(135deg, #88dd00 0%, #689f38 100%); }
+        .tier-button.tier-d { background: linear-gradient(135deg, #4488dd 0%, #1976d2 100%); }
+        .tier-button.unranked { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .modal-delete {
+            background: #dc3545;
+            color: white;
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+                padding: 15px 60px 15px 70px;
+                position: relative;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
             .main-content {
                 flex-direction: column;
+                min-height: calc(100vh - 80px);
             }
             
             .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+                overflow-y: auto;
+                border-right: 1px solid #dee2e6;
+                border-bottom: none;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-overlay.open {
+                display: block;
+            }
+            
+            .tier-editor {
+                padding: 10px;
                 width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .tier-tabs {
+                display: block;
+            }
+            
+            .tier-list-container {
+                padding: 15px;
+            }
+            
+            .tier-list-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .tier-controls {
+                display: none; /* Hidden on mobile, use FAB instead */
+            }
+            
+            .add-item-controls {
+                display: none; /* Hidden on mobile, use FAB instead */
+            }
+            
+            .fab-container {
+                display: block;
             }
             
             .tier-row {
-                flex-direction: column;
+                margin-bottom: 10px;
+                min-height: 80px;
             }
             
             .tier-label {
-                width: 100%;
-                height: 60px;
+                width: 80px;
+                font-size: 1.5em;
+                min-height: 80px;
+            }
+            
+            .tier-content {
+                padding: 8px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                min-width: calc(100vw - 120px);
+            }
+            
+            .tier-item {
+                width: 70px;
+                height: 70px;
+                flex-shrink: 0;
+                margin-right: 8px;
+            }
+            
+            .tier-item.text {
+                font-size: 11px;
+                padding: 3px;
+            }
+            
+            .unranked-area {
+                margin-top: 15px;
+                padding: 15px;
+            }
+            
+            .unranked-content {
+                min-height: 100px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            /* Touch-friendly buttons */
+            button {
+                min-height: 44px;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+            
+            input, textarea {
+                min-height: 44px;
+                font-size: 16px;
+                padding: 12px;
+            }
+            
+            .tier-list-item {
+                padding: 20px 15px;
+            }
+            
+            .controls button {
+                min-height: 40px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tier-buttons {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .tier-item {
                 width: 60px;
                 height: 60px;
             }
+            
+            .tier-label {
+                width: 60px;
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Mobile hamburger menu -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        ☰
+    </button>
+    
+    <!-- Mobile overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <!-- Floating Action Button -->
+    <div class="fab-container" id="fabContainer" role="toolbar" aria-label="Tier list actions">
+        <button class="fab-main" id="fabMain" aria-label="Open actions menu" aria-expanded="false" aria-haspopup="true">+</button>
+        <div class="fab-menu" id="fabMenu" role="menu" aria-label="Action menu">
+            <button class="fab-item" data-action="add-text" role="menuitem" aria-label="Add text item">📝 Add Text</button>
+            <button class="fab-item" data-action="add-image" role="menuitem" aria-label="Add image item">🖼️ Add Image</button>
+            <button class="fab-item" data-action="save" role="menuitem" aria-label="Save tier list">💾 Save</button>
+            <button class="fab-item" data-action="export" role="menuitem" aria-label="Export tier list as image">📤 Export</button>
+        </div>
+    </div>
+    
+    <!-- Mobile tier selection modal -->
+    <div class="mobile-tier-modal" id="mobileTierModal">
+        <div class="modal-header">Move item to tier</div>
+        <div class="tier-buttons">
+            <button class="tier-button tier-s" data-tier="S">S</button>
+            <button class="tier-button tier-a" data-tier="A">A</button>
+            <button class="tier-button tier-b" data-tier="B">B</button>
+            <button class="tier-button tier-c" data-tier="C">C</button>
+            <button class="tier-button tier-d" data-tier="D">D</button>
+            <button class="tier-button unranked" data-tier="unranked">Unranked</button>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-cancel" id="modalCancel">Cancel</button>
+            <button class="modal-delete" id="modalDelete">Delete Item</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>🏆 Tier List Creator</h1>
+            <h1>🏆 Tier List App</h1>
+        </div>
+        
+        <!-- Mobile tier tabs navigation -->
+        <div class="tier-tabs" id="tierTabs">
+            <div class="tier-tab active" data-tier="S">S</div>
+            <div class="tier-tab" data-tier="A">A</div>
+            <div class="tier-tab" data-tier="B">B</div>
+            <div class="tier-tab" data-tier="C">C</div>
+            <div class="tier-tab" data-tier="D">D</div>
+            <div class="tier-tab" data-tier="unranked">Unranked</div>
         </div>
         
         <div class="main-content">
@@ -426,7 +811,7 @@
                         <label for="tierListDescription">Description:</label>
                         <textarea id="tierListDescription" rows="3" placeholder="Enter description"></textarea>
                     </div>
-                    <button onclick="createTierList()">Create Tier List</button>
+                    <button id="createBtn" onclick="createTierList()">Create Tier List</button>
                 </div>
 
                 <!-- App Controls Section -->

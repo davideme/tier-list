@@ -5,6 +5,7 @@ import { generateId } from './utils';
 let app: TierListApp;
 let currentTierList: TierList | null = null;
 let draggedItem: HTMLElement | null = null;
+let selectedItem: HTMLElement | null = null;
 
 // Application state
 let isInitialized = false;
@@ -829,4 +830,319 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize the application
   initializeApp();
+  
+  // Initialize mobile functionality
+  initializeMobileFeatures();
 });
+
+// Mobile functionality
+function initializeMobileFeatures() {
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const mobileOverlay = document.getElementById('mobileOverlay');
+  const sidebar = document.querySelector('.sidebar') as HTMLElement;
+  const fabMain = document.getElementById('fabMain');
+  const fabMenu = document.getElementById('fabMenu');
+  const fabContainer = document.getElementById('fabContainer');
+  const tierTabs = document.getElementById('tierTabs');
+  const mobileTierModal = document.getElementById('mobileTierModal');
+  const modalCancel = document.getElementById('modalCancel');
+  const modalDelete = document.getElementById('modalDelete');
+  
+  let fabMenuOpen = false;
+  
+  // Hamburger menu functionality
+  if (mobileMenuToggle && mobileOverlay && sidebar) {
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      mobileOverlay.classList.toggle('open');
+    });
+    
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+    });
+  }
+  
+  // FAB functionality
+  if (fabMain && fabMenu) {
+    const toggleFabMenu = () => {
+      fabMenuOpen = !fabMenuOpen;
+      fabMenu.classList.toggle('open', fabMenuOpen);
+      fabMain.style.transform = fabMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)';
+      fabMain.setAttribute('aria-expanded', fabMenuOpen.toString());
+      
+      if (fabMenuOpen) {
+        // Focus first menu item when opened
+        const firstItem = fabMenu.querySelector('.fab-item') as HTMLElement;
+        if (firstItem) firstItem.focus();
+      }
+    };
+    
+    const closeFabMenu = () => {
+      fabMenuOpen = false;
+      fabMenu.classList.remove('open');
+      fabMain.style.transform = 'rotate(0deg)';
+      fabMain.setAttribute('aria-expanded', 'false');
+      fabMain.focus();
+    };
+    
+    fabMain.addEventListener('click', toggleFabMenu);
+    
+    // Keyboard navigation for FAB main button
+      fabMain.addEventListener('keydown', (e) => {
+        const keyEvent = e as KeyboardEvent;
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          keyEvent.preventDefault();
+          toggleFabMenu();
+        } else if (keyEvent.key === 'Escape' && fabMenuOpen) {
+          keyEvent.preventDefault();
+          closeFabMenu();
+        }
+      });
+    
+    // FAB menu item actions
+    const fabItems = fabMenu.querySelectorAll('.fab-item');
+    fabItems.forEach((item, index) => {
+      item.addEventListener('click', (e) => {
+        const action = (e.target as HTMLElement).getAttribute('data-action');
+        handleFabAction(action);
+        closeFabMenu();
+      });
+      
+      // Keyboard navigation for menu items
+        item.addEventListener('keydown', (e) => {
+          const keyEvent = e as KeyboardEvent;
+          if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+            keyEvent.preventDefault();
+            const action = (keyEvent.target as HTMLElement).getAttribute('data-action');
+            handleFabAction(action);
+            closeFabMenu();
+          } else if (keyEvent.key === 'Escape') {
+            keyEvent.preventDefault();
+            closeFabMenu();
+          } else if (keyEvent.key === 'ArrowDown') {
+            keyEvent.preventDefault();
+            const nextItem = fabItems[index + 1] as HTMLElement;
+            if (nextItem) nextItem.focus();
+          } else if (keyEvent.key === 'ArrowUp') {
+            keyEvent.preventDefault();
+            const prevItem = fabItems[index - 1] as HTMLElement;
+            if (prevItem) prevItem.focus();
+          }
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (fabMenuOpen && !fabContainer?.contains(e.target as Node)) {
+        closeFabMenu();
+      }
+    });
+  }
+  
+  // Tier tabs functionality
+  if (tierTabs) {
+    const tabs = tierTabs.querySelectorAll('.tier-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        // Add active class to clicked tab
+        tab.classList.add('active');
+        
+        // Scroll to corresponding tier
+        const tierName = tab.getAttribute('data-tier');
+        scrollToTier(tierName);
+      });
+    });
+  }
+  
+  // Mobile tier selection modal
+  if (mobileTierModal && modalCancel && modalDelete) {
+    const tierButtons = mobileTierModal.querySelectorAll('.tier-button');
+    
+    tierButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTier = button.getAttribute('data-tier');
+        if (selectedItem && targetTier) {
+          moveItemToTier(selectedItem, targetTier);
+          closeMobileTierModal();
+        }
+      });
+    });
+    
+    modalCancel.addEventListener('click', closeMobileTierModal);
+    
+    modalDelete.addEventListener('click', () => {
+      if (selectedItem) {
+        const itemId = selectedItem.getAttribute('data-id');
+        if (itemId) {
+          deleteItem(itemId);
+        }
+        closeMobileTierModal();
+      }
+    });
+  }
+  
+  // Touch interactions for tier items
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const tierItem = target.closest('.tier-item') as HTMLElement;
+    
+    if (tierItem && window.innerWidth <= 768) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Remove selection from other items
+      document.querySelectorAll('.tier-item.selected').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Select current item
+      tierItem.classList.add('selected');
+      selectedItem = tierItem;
+      
+      // Show mobile tier modal
+      showMobileTierModal();
+    }
+  });
+  
+  // Show/hide FAB based on tier editor visibility
+  const observer = new MutationObserver(() => {
+    const tierEditor = document.querySelector('.tier-editor');
+    if (fabContainer) {
+      if (tierEditor && !tierEditor.classList.contains('hidden')) {
+        fabContainer.style.display = 'block';
+      } else {
+        fabContainer.style.display = 'none';
+      }
+    }
+  });
+  
+  const tierEditor = document.querySelector('.tier-editor');
+  if (tierEditor) {
+    observer.observe(tierEditor, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+function handleFabAction(action: string | null) {
+  switch (action) {
+    case 'add-text':
+      addTextItem();
+      break;
+    case 'add-image':
+      const fileInput = document.getElementById('imageUpload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+      }
+      break;
+    case 'save':
+      saveTierList();
+      break;
+    case 'export':
+      exportTierListImage();
+      break;
+  }
+}
+
+function scrollToTier(tierName: string | null) {
+  if (!tierName) return;
+  
+  let targetElement: HTMLElement | null = null;
+  
+  if (tierName === 'unranked') {
+    targetElement = document.querySelector('.unranked-area') as HTMLElement;
+  } else {
+    const tierRows = document.querySelectorAll('.tier-row');
+    tierRows.forEach(row => {
+      const label = row.querySelector('.tier-label');
+      if (label && label.textContent?.trim() === tierName) {
+        targetElement = row as HTMLElement;
+      }
+    });
+  }
+  
+  if (targetElement) {
+    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function moveItemToTier(item: HTMLElement, targetTier: string) {
+  const itemId = item.getAttribute('data-id');
+  if (!itemId || !currentTierList) return;
+  
+  // Find the item in current tier list
+  let tierListItem: any = null;
+  
+  // Search in all tiers
+  for (const tier of currentTierList.tiers) {
+    tierListItem = tier.items.find((i: any) => i.id === itemId);
+    if (tierListItem) break;
+  }
+  
+  // Search in unranked items if not found in tiers
+  if (!tierListItem) {
+    tierListItem = currentTierList.unrankedItems.find((i: any) => i.id === itemId);
+  }
+  
+  if (!tierListItem) return;
+  
+  // Update item tier
+  tierListItem.tier = targetTier === 'unranked' ? null : targetTier;
+  
+  // Remove item from current location
+  item.remove();
+  
+  // Add item to new location
+  let targetContainer: HTMLElement | null = null;
+  
+  if (targetTier === 'unranked') {
+    targetContainer = document.querySelector('.unranked-content') as HTMLElement;
+  } else {
+    const tierRows = document.querySelectorAll('.tier-row');
+    tierRows.forEach(row => {
+      const label = row.querySelector('.tier-label');
+      if (label && label.textContent?.trim() === targetTier) {
+        targetContainer = row.querySelector('.tier-content') as HTMLElement;
+      }
+    });
+  }
+  
+  if (targetContainer) {
+    const newItemElement = createItemElement(tierListItem);
+    targetContainer.appendChild(newItemElement);
+  }
+  
+  // Update unranked count
+  updateUnrankedCount();
+  
+  // Auto-save
+  saveTierList();
+}
+
+function showMobileTierModal() {
+  const modal = document.getElementById('mobileTierModal');
+  if (modal) {
+    modal.style.display = 'block';
+    setTimeout(() => {
+      modal.classList.add('open');
+    }, 10);
+  }
+}
+
+function closeMobileTierModal() {
+  const modal = document.getElementById('mobileTierModal');
+  if (modal) {
+    modal.classList.remove('open');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+  
+  // Remove selection from all items
+  document.querySelectorAll('.tier-item.selected').forEach(item => {
+    item.classList.remove('selected');
+  });
+  
+  selectedItem = null;
+}
