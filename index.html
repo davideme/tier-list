@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier List App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 80vh;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .tier-editor {
+            flex: 1;
+            padding: 20px;
+            background: #ffffff;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .section h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 1.2em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        /* Tier List Interface Styles */
+        .tier-list-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 600px;
+        }
+        
+        .tier-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .tier-list-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .tier-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tier-row {
+            display: flex;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 100px;
+        }
+        
+        .tier-label {
+            width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tier-label:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-content {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-start;
+            align-content: flex-start;
+            min-height: 80px;
+            border: 2px dashed transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tier-content.drag-over {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        
+        .tier-s { background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); }
+        .tier-a { background: linear-gradient(135deg, #ff8800 0%, #e65100 100%); }
+        .tier-b { background: linear-gradient(135deg, #ffdd00 0%, #f57f17 100%); }
+        .tier-c { background: linear-gradient(135deg, #88dd00 0%, #689f38 100%); }
+        .tier-d { background: linear-gradient(135deg, #4488dd 0%, #1976d2 100%); }
+        
+        .unranked-area {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .unranked-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .unranked-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px dashed #dee2e6;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .unranked-content.drag-over {
+            border-color: #28a745;
+            background-color: #e8f5e8;
+        }
+        
+        .tier-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 6px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+        
+        .tier-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        
+        .tier-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            cursor: grabbing;
+        }
+        
+        .tier-item.image {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .tier-item.text {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: center;
+            padding: 5px;
+            word-break: break-word;
+        }
+        
+        .item-controls {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tier-item:hover .item-controls {
+            opacity: 1;
+        }
+        
+        .item-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-item-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .add-item-input {
+            flex: 1;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .tier-list-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tier-list-item:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tier-list-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 1.1em;
+        }
+        
+        .tier-list-meta {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .controls button {
+            margin: 0;
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .tier-row {
+                flex-direction: column;
+            }
+            
+            .tier-label {
+                width: 100%;
+                height: 60px;
+            }
+            
+            .tier-item {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Tier List Creator</h1>
+        </div>
+        
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Create New Tier List Section -->
+                <div class="section">
+                    <h3>Create New Tier List</h3>
+                    <div class="form-group">
+                        <label for="tierListTitle">Title:</label>
+                        <input type="text" id="tierListTitle" placeholder="Enter tier list title">
+                    </div>
+                    <div class="form-group">
+                        <label for="tierListDescription">Description:</label>
+                        <textarea id="tierListDescription" rows="3" placeholder="Enter description"></textarea>
+                    </div>
+                    <button onclick="createTierList()">Create Tier List</button>
+                </div>
+
+                <!-- App Controls Section -->
+                <div class="section">
+                    <h3>Application Controls</h3>
+                    <button onclick="exportAllData()" class="secondary">Export All Data</button>
+                    <button onclick="importData()" class="secondary">Import Data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+                    <button onclick="showStorageInfo()" class="secondary">Storage Info</button>
+                    <button onclick="refreshTierLists()" class="secondary">Refresh</button>
+                </div>
+
+                <!-- Existing Tier Lists Section -->
+                <div class="section">
+                    <h3>Your Tier Lists</h3>
+                    <div id="tierListsContainer">
+                        <div class="empty-state">No tier lists found. Create your first tier list above!</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Tier List Editor -->
+            <div class="tier-editor">
+                <div id="tierListEditor" class="hidden">
+                    <div class="tier-list-container">
+                        <div class="tier-list-header">
+                            <h2 class="tier-list-title" id="currentTierListTitle">Select a Tier List</h2>
+                            <div class="tier-controls">
+                                <button onclick="saveTierList()">💾 Save</button>
+                                <button onclick="exportTierListImage()" class="secondary">📷 Export Image</button>
+                                <button onclick="closeTierListEditor()" class="danger">✕ Close</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Items Controls -->
+                        <div class="add-item-controls">
+                            <input type="text" id="newItemText" class="add-item-input" placeholder="Add text item..." onkeypress="handleAddItemKeyPress(event)">
+                            <button onclick="addTextItem()">Add Text</button>
+                            <div class="file-input-wrapper">
+                                <button>Add Image</button>
+                                <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+                            </div>
+                        </div>
+                        
+                        <!-- Tier Rows -->
+                        <div id="tierRows">
+                            <div class="tier-row" data-tier="S">
+                                <div class="tier-label tier-s" onclick="editTierLabel('S')">S</div>
+                                <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                            </div>
+                            <div class="tier-row" data-tier="A">
+                                <div class="tier-label tier-a" onclick="editTierLabel('A')">A</div>
+                                <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                            </div>
+                            <div class="tier-row" data-tier="B">
+                                <div class="tier-label tier-b" onclick="editTierLabel('B')">B</div>
+                                <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                            </div>
+                            <div class="tier-row" data-tier="C">
+                                <div class="tier-label tier-c" onclick="editTierLabel('C')">C</div>
+                                <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                            </div>
+                            <div class="tier-row" data-tier="D">
+                                <div class="tier-label tier-d" onclick="editTierLabel('D')">D</div>
+                                <div class="tier-content" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Unranked Items Area -->
+                        <div class="unranked-area">
+                            <div class="unranked-header">
+                                <span>📦 Unranked Items</span>
+                                <span id="unrankedCount">0 items</span>
+                            </div>
+                            <div class="unranked-content" id="unrankedItems" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                <div class="empty-state">Drag items here or add new items above</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="welcomeMessage" class="tier-list-container">
+                    <div class="empty-state">
+                        <h2>Welcome to Tier List Creator! 🎯</h2>
+                        <p>Create a new tier list or select an existing one from the sidebar to start ranking items.</p>
+                        <p>✨ <strong>Features:</strong></p>
+                        <ul style="text-align: left; display: inline-block;">
+                            <li>Drag and drop items between tiers</li>
+                            <li>Add text and image items</li>
+                            <li>Customize tier labels and colors</li>
+                            <li>Export as images</li>
+                            <li>All data stored locally in your browser</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/main.ts"></script>
+</body>
+</html>
