@@ -452,7 +452,7 @@ function handleDragStart(event: DragEvent) {
   event.dataTransfer!.effectAllowed = 'move';
 }
 
-function handleDragEnd(event: DragEvent) {
+function handleDragEnd(_event: DragEvent) {
   if (draggedItem) {
     draggedItem.classList.remove('dragging');
     draggedItem = null;
@@ -714,7 +714,6 @@ async function handleFileImport(event: Event) {
   
   try {
     const importBtn = document.getElementById('importBtn') as HTMLButtonElement;
-    const importFile = document.getElementById('importFile') as HTMLInputElement;
     importBtn.disabled = true;
     importBtn.textContent = 'Importing...';
     

@@ -14,7 +14,7 @@ export class LocalStorageProvider implements StorageProvider {
   private readonly CURRENT_VERSION = '1.0.0';
   private readonly maxSize: number;
   
-  constructor(private config: LocalStorageConfig = {}) {
+  constructor(config: LocalStorageConfig = {}) {
     this.STORAGE_KEY = config.storageKey || 'tierlist_app_data';
     this.VERSION_KEY = config.versionKey || 'tierlist_app_version';
     this.maxSize = config.maxSize || 5 * 1024 * 1024; // 5MB default
