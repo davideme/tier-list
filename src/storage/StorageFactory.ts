@@ -6,7 +6,7 @@ import { LocalStorageProvider } from './LocalStorageProvider';
  */
 export class StorageFactory {
   private static instance: StorageProvider | null = null;
-  
+
   /**
    * Create a storage provider based on configuration
    */
@@ -22,7 +22,7 @@ export class StorageFactory {
         throw new Error(`Unsupported storage type: ${(config as any).type}`);
     }
   }
-  
+
   /**
    * Get the current storage instance
    */
@@ -32,28 +32,28 @@ export class StorageFactory {
     }
     return this.instance;
   }
-  
+
   /**
    * Initialize storage with configuration
    */
   static async initialize(config: StorageConfig): Promise<void> {
     this.instance = await this.createStorage(config);
   }
-  
+
   /**
    * Check if storage is initialized
    */
   static isInitialized(): boolean {
     return this.instance !== null;
   }
-  
+
   /**
    * Reset the storage instance (useful for testing)
    */
   static reset(): void {
     this.instance = null;
   }
-  
+
   /**
    * Get default storage configuration for local storage
    */
@@ -63,8 +63,8 @@ export class StorageFactory {
       local: {
         storageKey: 'tierlist_app_data',
         versionKey: 'tierlist_app_version',
-        maxSize: 5 * 1024 * 1024 // 5MB
-      }
+        maxSize: 5 * 1024 * 1024, // 5MB
+      },
     };
   }
 }

@@ -53,18 +53,18 @@ export interface StorageProvider {
   load(id: string): Promise<TierList | null>;
   list(): Promise<TierListSummary[]>;
   delete(id: string): Promise<void>;
-  
+
   // Batch operations
   saveMultiple(tierLists: TierList[]): Promise<void>;
   loadMultiple(ids: string[]): Promise<TierList[]>;
-  
+
   // Export/Import
   export(): Promise<string>; // JSON string of all data
   import(data: string): Promise<void>;
-  
+
   // Storage info
   getStorageInfo(): Promise<StorageInfo>;
-  
+
   // Event handling for real-time updates (future)
   subscribe?(callback: (event: StorageEvent) => void): () => void;
 }

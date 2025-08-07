@@ -12,15 +12,17 @@ export function generateId(): string {
  * Convert a TierList to a TierListSummary
  */
 export function toSummary(tierList: TierList): TierListSummary {
-  const itemCount = tierList.tiers.reduce((count, tier) => count + tier.items.length, 0) + tierList.unrankedItems.length;
-  
+  const itemCount =
+    tierList.tiers.reduce((count, tier) => count + tier.items.length, 0) +
+    tierList.unrankedItems.length;
+
   return {
     id: tierList.id,
     title: tierList.title,
     createdAt: tierList.metadata.createdAt,
     updatedAt: tierList.metadata.updatedAt,
     itemCount,
-    thumbnail: generateThumbnail(tierList)
+    thumbnail: generateThumbnail(tierList),
   };
 }
 
@@ -36,13 +38,13 @@ function generateThumbnail(tierList: TierList): string | undefined {
       }
     }
   }
-  
+
   for (const item of tierList.unrankedItems) {
     if (item.type === 'image') {
       return item.content;
     }
   }
-  
+
   return undefined;
 }
 
@@ -52,13 +54,13 @@ function generateThumbnail(tierList: TierList): string | undefined {
 export function createDefaultTiers(): Tier[] {
   const labels = ['S', 'A', 'B', 'C', 'D'];
   const colors = ['#ff4444', '#ff8800', '#ffdd00', '#88dd00', '#4488dd'];
-  
+
   return labels.map((label, index) => ({
     id: generateId(),
     label,
     color: colors[index],
     items: [],
-    order: index
+    order: index,
   }));
 }
 
@@ -83,22 +85,22 @@ export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
-  
+
   if (obj instanceof Date) {
     return new Date(obj.getTime()) as unknown as T;
   }
-  
+
   if (Array.isArray(obj)) {
     return obj.map(item => deepClone(item)) as unknown as T;
   }
-  
+
   const cloned = {} as T;
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       cloned[key] = deepClone(obj[key]);
     }
   }
-  
+
   return cloned;
 }
 
@@ -124,11 +126,11 @@ export function parseDates(obj: any): any {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
-  
+
   if (Array.isArray(obj)) {
     return obj.map(parseDates);
   }
-  
+
   const result = { ...obj };
   for (const key in result) {
     if (key.includes('Date') || key.includes('At')) {
@@ -139,6 +141,6 @@ export function parseDates(obj: any): any {
       result[key] = parseDates(result[key]);
     }
   }
-  
+
   return result;
 }

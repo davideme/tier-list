@@ -9,7 +9,7 @@ describe('LocalStorageProvider', () => {
   beforeEach(() => {
     // Reset localStorage mock
     mockLocalStorage = {};
-    
+
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
@@ -57,10 +57,7 @@ describe('LocalStorageProvider', () => {
         'tierlist_app_data',
         expect.stringContaining('"test-id"')
       );
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'tierlist_app_version',
-        '1.0.0'
-      );
+      expect(localStorage.setItem).toHaveBeenCalledWith('tierlist_app_version', '1.0.0');
     });
 
     it('should handle storage quota', async () => {
@@ -189,7 +186,7 @@ describe('LocalStorageProvider', () => {
         createdAt: tierList1.metadata.createdAt,
         updatedAt: tierList1.metadata.updatedAt,
         itemCount: 1,
-        thumbnail: undefined
+        thumbnail: undefined,
       });
     });
 
@@ -204,8 +201,8 @@ describe('LocalStorageProvider', () => {
       const storageData = {
         version: '1.0.0',
         tierLists: {
-          'id1': { id: 'id1', title: 'List 1' },
-          'id2': { id: 'id2', title: 'List 2' },
+          id1: { id: 'id1', title: 'List 1' },
+          id2: { id: 'id2', title: 'List 2' },
         },
         settings: {
           theme: 'default',
@@ -226,7 +223,7 @@ describe('LocalStorageProvider', () => {
       const storageData = {
         version: '1.0.0',
         tierLists: {
-          'id1': { id: 'id1', title: 'List 1' },
+          id1: { id: 'id1', title: 'List 1' },
         },
         settings: {
           theme: 'default',
@@ -237,7 +234,7 @@ describe('LocalStorageProvider', () => {
       mockLocalStorage['tierlist_app_data'] = JSON.stringify(storageData);
 
       const result = await provider.export();
-      
+
       expect(typeof result).toBe('string');
       expect(result).toContain('version');
     });
@@ -265,9 +262,7 @@ describe('LocalStorageProvider', () => {
     });
 
     it('should throw error for invalid JSON', async () => {
-      await expect(provider.import('invalid json')).rejects.toThrow(
-        'Failed to import data:'
-      );
+      await expect(provider.import('invalid json')).rejects.toThrow('Failed to import data:');
     });
   });
 
@@ -280,13 +275,13 @@ describe('LocalStorageProvider', () => {
         available: true,
         quota: {
           used: expect.any(Number),
-          total: expect.any(Number)
+          total: expect.any(Number),
         },
         features: {
           realTime: false,
           sync: false,
-          backup: true
-        }
+          backup: true,
+        },
       });
     });
   });

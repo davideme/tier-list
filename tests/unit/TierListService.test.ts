@@ -32,12 +32,12 @@ describe('TierListService', () => {
     };
 
     service = new TierListService(mockStorageProvider);
-    
+
     // Reset mocks
     mockGenerateId.mockClear();
     mockCreateDefaultTiers.mockClear();
     mockDeepClone.mockClear();
-    
+
     // Setup default mock returns
     mockGenerateId.mockReturnValue('test-id-123');
     mockCreateDefaultTiers.mockReturnValue([
@@ -46,36 +46,36 @@ describe('TierListService', () => {
         label: 'S',
         color: '#ff7f7f',
         items: [],
-        order: 0
+        order: 0,
       },
       {
         id: 'tier-a',
         label: 'A',
         color: '#ffbf7f',
         items: [],
-        order: 1
+        order: 1,
       },
       {
         id: 'tier-b',
         label: 'B',
         color: '#ffff7f',
         items: [],
-        order: 2
+        order: 2,
       },
       {
         id: 'tier-c',
         label: 'C',
         color: '#bfff7f',
         items: [],
-        order: 3
+        order: 3,
       },
       {
         id: 'tier-d',
         label: 'D',
         color: '#7fff7f',
         items: [],
-        order: 4
-      }
+        order: 4,
+      },
     ]);
   });
 
@@ -259,7 +259,7 @@ describe('TierListService', () => {
       };
 
       const clonedTierList = { ...originalTierList };
-      
+
       vi.mocked(mockStorageProvider.load).mockResolvedValue(originalTierList);
       mockDeepClone.mockReturnValue(clonedTierList);
       mockGenerateId.mockReturnValue('new-id-123');
