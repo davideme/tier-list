@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LocalStorageProvider } from '../../src/storage/LocalStorageProvider';
-import { TierList, TierListSummary } from '../../src/types';
+import { TierList } from '../../src/types';
 
 describe('LocalStorageProvider', () => {
   let provider: LocalStorageProvider;
