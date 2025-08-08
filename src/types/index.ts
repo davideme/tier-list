@@ -49,24 +49,24 @@ export interface TierListSummary {
 // Storage Interfaces
 export interface StorageProvider {
   // Basic CRUD operations
-  save(tierList: TierList): Promise<void>;
-  load(id: string): Promise<TierList | null>;
+  save(_tierList: TierList): Promise<void>;
+  load(_id: string): Promise<TierList | null>;
   list(): Promise<TierListSummary[]>;
-  delete(id: string): Promise<void>;
+  delete(_id: string): Promise<void>;
 
   // Batch operations
-  saveMultiple(tierLists: TierList[]): Promise<void>;
-  loadMultiple(ids: string[]): Promise<TierList[]>;
+  saveMultiple(_tierLists: TierList[]): Promise<void>;
+  loadMultiple(_ids: string[]): Promise<TierList[]>;
 
   // Export/Import
   export(): Promise<string>; // JSON string of all data
-  import(data: string): Promise<void>;
+  import(_data: string): Promise<void>;
 
   // Storage info
   getStorageInfo(): Promise<StorageInfo>;
 
   // Event handling for real-time updates (future)
-  subscribe?(callback: (event: StorageEvent) => void): () => void;
+  subscribe?(_callback: (_event: StorageEvent) => void): () => void;
 }
 
 export interface StorageInfo {
