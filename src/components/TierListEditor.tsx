@@ -19,6 +19,8 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
 }) => {
   const [localTierList, setLocalTierList] = useState<TierList>(tierList);
   const [newItemText, setNewItemText] = useState('');
+  const [draggedItem, setDraggedItem] = useState<TierListItem | null>(null);
+  const [dragOverTarget, setDragOverTarget] = useState<string | null>(null);
 
   // Update local state when tierList prop changes
   useEffect(() => {
@@ -110,6 +112,72 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
     showStatus('Image export feature coming soon!', 'info');
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (item: TierListItem) => {
+    setDraggedItem(item);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDragOverTarget(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, target?: string) => {
+    e.preventDefault();
+    setDragOverTarget(target || 'unranked');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear drag over if we're actually leaving the drop zone
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDragOverTarget(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetTier?: string) => {
+    e.preventDefault();
+    setDragOverTarget(null);
+    
+    if (!draggedItem) return;
+
+    // Remove item from current location and add to target location
+    setLocalTierList(prev => {
+      const newTierList = { ...prev };
+      
+      // Remove from unranked items
+      newTierList.unrankedItems = newTierList.unrankedItems.filter(item => item.id !== draggedItem.id);
+      
+      // Remove from all tiers
+      newTierList.tiers = newTierList.tiers.map(tier => ({
+        ...tier,
+        items: tier.items.filter(item => item.id !== draggedItem.id)
+      }));
+
+      // Add to target location
+      if (targetTier) {
+        // Add to specific tier
+        const tierIndex = newTierList.tiers.findIndex(tier => tier.label === targetTier);
+        if (tierIndex !== -1) {
+          newTierList.tiers[tierIndex] = {
+            ...newTierList.tiers[tierIndex],
+            items: [...newTierList.tiers[tierIndex].items, draggedItem]
+          };
+        }
+      } else {
+        // Add to unranked items
+        newTierList.unrankedItems = [...newTierList.unrankedItems, draggedItem];
+      }
+
+      return newTierList;
+    });
+
+    setDraggedItem(null);
+  };
+
   return (
     <div className="tier-list-container">
       <div className="tier-list-header">
@@ -150,6 +218,13 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
             key={tier.id}
             tier={tier}
             onDeleteItem={deleteItem}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => handleDragOver(e, tier.label)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, tier.label)}
+            draggedItem={draggedItem}
+            isDragOver={dragOverTarget === tier.label}
           />
         ))}
       </div>
@@ -160,7 +235,12 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
           <span>📦 Unranked Items</span>
           <span>{localTierList.unrankedItems.length} item{localTierList.unrankedItems.length !== 1 ? 's' : ''}</span>
         </div>
-        <div className="unranked-content">
+        <div 
+          className={`unranked-content ${dragOverTarget === 'unranked' ? 'drag-over' : ''}`}
+          onDragOver={(e) => handleDragOver(e, 'unranked')}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e)}
+        >
           {localTierList.unrankedItems.length === 0 ? (
             <div className="empty-state">Drag items here or add new items above</div>
           ) : (
@@ -169,6 +249,9 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
                 key={item.id}
                 item={item}
                 onDelete={deleteItem}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                isDragging={draggedItem?.id === item.id}
               />
             ))
           )}
@@ -181,9 +264,26 @@ const TierListEditor: React.FC<TierListEditorProps> = ({
 interface TierRowProps {
   tier: any;
   onDeleteItem: (itemId: string) => void;
+  onDragStart: (item: TierListItem) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
+  draggedItem: TierListItem | null;
+  isDragOver: boolean;
 }
 
-const TierRow: React.FC<TierRowProps> = ({ tier, onDeleteItem }) => {
+const TierRow: React.FC<TierRowProps> = ({ 
+  tier, 
+  onDeleteItem, 
+  onDragStart, 
+  onDragEnd, 
+  onDragOver, 
+  onDragLeave,
+  onDrop, 
+  draggedItem,
+  isDragOver
+}) => {
   const editTierLabel = () => {
     const newLabel = prompt(`Enter new label for tier ${tier.label}:`, tier.label);
     if (newLabel && newLabel.trim()) {
@@ -204,12 +304,20 @@ const TierRow: React.FC<TierRowProps> = ({ tier, onDeleteItem }) => {
       >
         {tier.label}
       </div>
-      <div className="tier-content">
+      <div 
+        className={`tier-content ${isDragOver ? 'drag-over' : ''}`}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
         {tier.items.map((item: any) => (
           <TierItem
             key={item.id}
             item={item}
             onDelete={onDeleteItem}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            isDragging={draggedItem?.id === item.id}
           />
         ))}
       </div>
@@ -220,12 +328,20 @@ const TierRow: React.FC<TierRowProps> = ({ tier, onDeleteItem }) => {
 interface TierItemProps {
   item: TierListItem;
   onDelete: (itemId: string) => void;
+  onDragStart: (item: TierListItem) => void;
+  onDragEnd: () => void;
+  isDragging: boolean;
 }
 
-const TierItem: React.FC<TierItemProps> = ({ item, onDelete }) => {
+const TierItem: React.FC<TierItemProps> = ({ item, onDelete, onDragStart, onDragEnd, isDragging }) => {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(item.id);
+  };
+
+  const handleDragStart = (e: React.DragEvent) => {
+    onDragStart(item);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const itemStyle = item.type === 'image' 
@@ -234,10 +350,12 @@ const TierItem: React.FC<TierItemProps> = ({ item, onDelete }) => {
 
   return (
     <div 
-      className={`tier-item ${item.type}`}
+      className={`tier-item ${item.type} ${isDragging ? 'dragging' : ''}`}
       draggable
       data-item-id={item.id}
       style={itemStyle}
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
     >
       {item.type === 'text' && item.content}
       <div className="item-controls">
