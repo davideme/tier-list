@@ -13,7 +13,7 @@ export class LocalStorageProvider implements StorageProvider {
   private readonly VERSION_KEY: string;
   private readonly CURRENT_VERSION = '1.0.0';
   private readonly maxSize: number;
-  
+
   constructor(config: LocalStorageConfig = {}) {
     this.STORAGE_KEY = config.storageKey || 'tierlist_app_data';
     this.VERSION_KEY = config.versionKey || 'tierlist_app_version';
