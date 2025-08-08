@@ -21,11 +21,11 @@ export default defineConfig({
         channel: 'chrome',
       },
     },
-    // Temporarily disable other browsers to focus on getting Chrome working
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    // Note: Safari/WebKit not available on Linux systems
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
