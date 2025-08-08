@@ -9,9 +9,10 @@ test.describe('Tier List Application', () => {
   });
 
   test('should load the application successfully', async ({ page }) => {
-    await expect(page.locator('h1')).toContainText('Tier List Maker');
-    await expect(page.locator('#createBtn')).toBeVisible();
+    await expect(page.locator('h1')).toContainText('🏆 Tier List App');
     await expect(page.locator('#tierListTitle')).toBeVisible();
+    await expect(page.locator('#tierListDescription')).toBeVisible();
+    await expect(page.getByText('Create Tier List')).toBeVisible();
   });
 
   test('should create a new tier list', async ({ page }) => {
@@ -20,14 +21,14 @@ test.describe('Tier List Application', () => {
     await page.fill('#tierListDescription', 'This is a test description');
 
     // Click create button
-    await page.click('#createBtn');
+    await page.click('button:has-text("Create Tier List")');
 
-    // Wait for success message
-    await expect(page.locator('#status')).toContainText('created successfully');
-
-    // Check that the tier list editor is opened
-    await expect(page.locator('#tierListEditor')).toBeVisible();
-    await expect(page.locator('#editorTitle')).toContainText('My Test Tier List');
+    // Check that the tier list editor is opened (this indicates successful creation)
+    await expect(page.locator('.tier-list-container')).toBeVisible();
+    await expect(page.locator('.tier-list-title')).toContainText('My Test Tier List');
+    
+    // Verify the tier list is automatically opened for editing
+    await expect(page.locator('.status')).toContainText('Editing tier list: My Test Tier List');
   });
 
   test('should add text items to tier list', async ({ page }) => {
