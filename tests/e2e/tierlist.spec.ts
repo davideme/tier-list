@@ -34,24 +34,24 @@ test.describe('Tier List Application', () => {
   test('should add text items to tier list', async ({ page }) => {
     // Create a tier list first
     await page.fill('#tierListTitle', 'Test Tier List');
-    await page.click('#createBtn');
+    await page.click('button:has-text("Create Tier List")');
 
     // Wait for editor to open
-    await expect(page.locator('#tierListEditor')).toBeVisible();
+    await expect(page.locator('.tier-list-container')).toBeVisible();
 
     // Add a text item
-    await page.fill('#textItemInput', 'Test Item 1');
-    await page.click('#addTextBtn');
+    await page.fill('.add-item-input', 'Test Item 1');
+    await page.locator('.add-item-controls button:has-text("Add Text")').click();
 
     // Check that item appears in unranked area
-    await expect(page.locator('#unrankedItems .tier-item')).toContainText('Test Item 1');
+    await expect(page.locator('.unranked-content .tier-item')).toContainText('Test Item 1');
 
     // Add another item
-    await page.fill('#textItemInput', 'Test Item 2');
-    await page.click('#addTextBtn');
+    await page.fill('.add-item-input', 'Test Item 2');
+    await page.locator('.add-item-controls button:has-text("Add Text")').click();
 
     // Check that both items are present
-    const items = page.locator('#unrankedItems .tier-item');
+    const items = page.locator('.unranked-content .tier-item');
     await expect(items).toHaveCount(2);
   });
 
