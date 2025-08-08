@@ -7,9 +7,7 @@ Always reference these instructions first and fallback to search or bash command
 ### Bootstrap and Build the Repository
 - **Install dependencies**: `npm install` -- takes 46 seconds. NEVER CANCEL.
 - **Start development server**: `npm run dev` -- starts in under 3 seconds on http://localhost:3000
-- **Production build**: `npx vite build --mode development` -- takes under 1 second. NEVER CANCEL.
-  - **WARNING**: Do NOT use `npm run build` - it fails due to TypeScript strict mode unused variable errors
-  - **Alternative**: Use `npx vite build --mode development` which bypasses TypeScript compilation
+- **Production build**: `npm run build` -- takes under 1 second. NEVER CANCEL.
 - **Preview production build**: `npm run preview` -- starts preview server on http://localhost:4173
 
 ### Testing and Quality
@@ -17,14 +15,12 @@ Always reference these instructions first and fallback to search or bash command
 - **Code formatting**: `npm run format` -- fixes formatting issues in under 1 second
 - **Format check**: `npm run format:check` -- validates code formatting
 - **E2E tests**: `npm run test:e2e` -- FAILS due to Playwright browser installation issues. Use manual testing instead.
-- **Linting**: `npm run lint` -- FAILS due to ESLint browser environment configuration issues. Code quality issues exist but don't prevent functionality.
-- **Quality pipeline**: `npm run quality` -- FAILS due to TypeScript strict mode. Run individual commands instead.
+- **Linting**: `npm run lint` -- Works correctly with warnings only (no errors)
+- **Quality pipeline**: `npm run quality` -- Works but may fail on coverage thresholds
 
 ### Known Issues and Workarounds
-- **TypeScript Build**: Regular `npm run build` fails due to unused variables (event parameters, config properties). Use Vite directly.
-- **ESLint Configuration**: Browser globals (localStorage, console, window) not recognized. Functionality works despite linting errors.
-- **Playwright E2E**: Browser installation fails. Use manual testing or browser tools for validation.
-- **Strict Mode**: TypeScript strict unused variable checking prevents compilation. Consider using @ts-ignore or fixing unused variables.
+- **E2E Testing**: Playwright browser installation fails. Use manual testing or browser tools for validation.
+- **Coverage Thresholds**: Test coverage may not meet thresholds for untested React components.
 
 ## Application Architecture
 
@@ -107,14 +103,13 @@ npm run dev          # Starts on http://localhost:3000
 ```bash
 npm run format       # Fix formatting (always run before commits)
 npm run test         # Run unit tests (21 tests, < 1 second)
-# Skip npm run lint - has configuration issues
+npm run lint         # Check code quality (warnings only)
 ```
 
 ### Building for Production
 ```bash
-# Use this instead of npm run build:
-npx vite build --mode development  # Takes < 1 second
-npm run preview                    # Preview on http://localhost:4173
+npm run build        # Standard TypeScript + Vite build
+npm run preview      # Preview on http://localhost:4173
 ```
 
 ### Debugging Application Issues
@@ -145,7 +140,7 @@ npm run preview                    # Preview on http://localhost:4173
 - **npm install**: 46 seconds -- Set timeout to 120+ seconds. NEVER CANCEL.
 - **npm run dev**: 3 seconds -- Set timeout to 30+ seconds.
 - **npm run test**: 1 second -- Set timeout to 30+ seconds. NEVER CANCEL.
-- **npx vite build**: 1 second -- Set timeout to 60+ seconds. NEVER CANCEL.
+- **npm run build**: 1 second -- Set timeout to 60+ seconds. NEVER CANCEL.
 - **npm run format**: 1 second -- Set timeout to 30+ seconds.
 
 ### Application Performance
@@ -160,21 +155,21 @@ npm run preview                    # Preview on http://localhost:4173
 - Development server and application functionality
 - Unit testing with Vitest
 - Code formatting with Prettier
+- TypeScript compilation and build process
+- ESLint linting (warnings only, no errors)
 - Manual testing and validation
 - Local storage persistence
 - Core tier list features
 
 ### What Has Issues (Document but Don't Rely On)
-- TypeScript strict compilation (`npm run build`)
-- ESLint linting (`npm run lint`) 
 - Playwright e2e tests (`npm run test:e2e`)
-- Combined quality pipeline (`npm run quality`)
+- Test coverage thresholds (React components not fully tested)
 
 ### Always Do Before Committing
 1. Run `npm run format` to fix code formatting
 2. Run `npm run test` to ensure unit tests pass
 3. Test manually using the validation scenarios above
-4. Use `npx vite build --mode development` to verify buildability
+4. Use `npm run build` to verify production buildability
 
 ## Repository Context
 This is a Phase 1 implementation focusing on local storage foundation. The architecture is designed for future extension to cloud storage (Firebase, APIs) without breaking changes. The application successfully demonstrates core tier list functionality with a clean, extensible codebase.

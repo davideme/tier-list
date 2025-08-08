@@ -6,7 +6,7 @@ import { generateId, createDefaultTiers, deepClone } from '@/utils';
  */
 export class TierListService {
   private storage: StorageProvider;
-  private eventListeners: Map<string, ((event: any) => void)[]> = new Map();
+  private eventListeners: Map<string, ((_data: any) => void)[]> = new Map();
 
   constructor(storage: StorageProvider) {
     this.storage = storage;
@@ -320,20 +320,20 @@ export class TierListService {
   /**
    * Add event listener
    */
-  on(event: string, listener: (data: any) => void): void {
-    if (!this.eventListeners.has(event)) {
-      this.eventListeners.set(event, []);
+  on(_event: string, _listener: (_data: any) => void): void {
+    if (!this.eventListeners.has(_event)) {
+      this.eventListeners.set(_event, []);
     }
-    this.eventListeners.get(event)!.push(listener);
+    this.eventListeners.get(_event)!.push(_listener);
   }
 
   /**
    * Remove event listener
    */
-  off(event: string, listener: (data: any) => void): void {
-    const listeners = this.eventListeners.get(event);
+  off(_event: string, _listener: (_data: any) => void): void {
+    const listeners = this.eventListeners.get(_event);
     if (listeners) {
-      const index = listeners.indexOf(listener);
+      const index = listeners.indexOf(_listener);
       if (index !== -1) {
         listeners.splice(index, 1);
       }
@@ -343,10 +343,10 @@ export class TierListService {
   /**
    * Emit event
    */
-  private emit(event: string, data: any): void {
-    const listeners = this.eventListeners.get(event);
+  private emit(_event: string, _data: any): void {
+    const listeners = this.eventListeners.get(_event);
     if (listeners) {
-      listeners.forEach(listener => listener(data));
+      listeners.forEach(listener => listener(_data));
     }
   }
 }

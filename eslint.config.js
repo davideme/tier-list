@@ -28,7 +28,10 @@ export default [
     },
     rules: {
       // TypeScript rules
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_'
+      }],
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-inferrable-types': 'error',
@@ -37,7 +40,11 @@ export default [
       'no-console': 'warn',
       'no-debugger': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
+      'no-var': 'error',
+      'no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_'
+      }]
     }
   },
   {
