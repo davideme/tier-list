@@ -9,7 +9,19 @@ export default [
     languageOptions: {
       parser: tsparser,
       ecmaVersion: 2020,
-      sourceType: 'module'
+      sourceType: 'module',
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        console: 'readonly',
+        Blob: 'readonly',
+        Buffer: 'readonly',
+        // Node globals for tests
+        global: 'readonly',
+        process: 'readonly'
+      }
     },
     plugins: {
       '@typescript-eslint': tseslint
